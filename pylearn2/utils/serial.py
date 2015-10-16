@@ -22,6 +22,7 @@ import struct
 from pylearn2.utils.exc import reraise_as
 from pylearn2.utils.string_utils import match
 import shutil
+from retrying import retry
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ def load(filepath, retry=True):
 
     return _load(filepath, recurse_depth=0, retry=True)
 
-
+@retry(wait_random_min=1000, wait_random_max=5000, stop_max_attempt_number=5)
 def save(filepath, obj, on_overwrite='ignore'):
     """
     Serialize `object` to a file denoted by `filepath`.
