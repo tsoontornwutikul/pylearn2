@@ -1,4 +1,4 @@
-﻿"""
+"""
 Cross validation module.
 
 Each fold of cross validation is a separate experiment, so we create a
@@ -44,6 +44,8 @@ class TrainCV(object):
         Save frequency, in epochs. Only used if save_folds is True.
     extensions : list or None
         TrainExtension objects for individual Train objects.
+    skip_folds : int
+        Number of cross-validation folds to skip (e.g. when resuming).
     allow_overwrite : bool
         Whether to overwrite pre-existing output file matching save_path.
     save_folds: bool
@@ -54,8 +56,10 @@ class TrainCV(object):
     def __init__(self, dataset_iterator, model, algorithm=None, 
                  algorithm_monitoring_datasets=None,
                  save_path=None, save_freq=0, extensions=None,
+                 skip_folds=0,
                  allow_overwrite=True, save_folds=False, cv_extensions=None):
         self.dataset_iterator = dataset_iterator
+        self.skip_folds = skip_folds
         trainers = []
         for k, datasets in enumerate(dataset_iterator):
             if save_folds and save_path is not None:
@@ -170,12 +174,12 @@ class TrainCV(object):
             view = client.load_balanced_view()
             view.set_flags(**view_flags)
             call = view.map(_train,
-                            self.trainers,
+                            self.trainers[self.skip_folds:],
                             [time_budget] * len(self.trainers),
                             block=False)
             self.trainers = call.get()
         else:
-            for trainer in self.trainers:
+            for trainer in self.trainers[self.skip_folds:]:
                 trainer.main_loop(time_budget)
         self.save()
 
