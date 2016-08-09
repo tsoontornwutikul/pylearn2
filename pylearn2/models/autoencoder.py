@@ -725,9 +725,6 @@ class DeepComposedAutoencoder(AbstractAutoencoder):
         self.fn = None
         self.cpu_only = False
 
-        assert all(pre.get_output_space().dim == post.get_input_space().dim
-                   for pre, post in izip(autoencoders[:-1], autoencoders[1:]))
-
         self.autoencoders = list(autoencoders)
         self.input_space = autoencoders[0].get_input_space()
         self.output_space = autoencoders[-1].get_output_space()
