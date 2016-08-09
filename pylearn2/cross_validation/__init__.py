@@ -175,7 +175,7 @@ class TrainCV(object):
             view.set_flags(**view_flags)
             call = view.map(_train,
                             self.trainers[self.skip_folds:],
-                            [time_budget] * len(self.trainers),
+                            [time_budget] * len(self.trainers[self.skip_folds:]),
                             block=False)
             self.trainers = call.get()
         else:
